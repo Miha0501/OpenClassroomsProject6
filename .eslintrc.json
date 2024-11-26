@@ -17,5 +17,7 @@
         "react"
     ],
     "rules": {
+        "endOfLine": "lf",
+        "prefer-template": "off"
     }
 }
