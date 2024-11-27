@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 const booksRoutes = require ('./routes/books');
+const userRoutes = require ('./routes/user');
 
 app.use(express.json()); // lire le body des rêquetes en json
 app.use (cors());
@@ -20,6 +21,7 @@ app.use((req, res, next) => {
     next();
   });
 
-  app.use('./api/books', booksRoutes);
+  app.use('/api/books', booksRoutes);
+  app.use('/api/auth', userRoutes);
 
 module.exports = app;
