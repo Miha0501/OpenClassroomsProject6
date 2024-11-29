@@ -3,7 +3,7 @@ const Book = require('../models/Book');
 exports.getAllBooks = (req, res, next) => { // récupération des livres pour être envoyés dans la base des données
     Book.find()
       .then(books => res.status(200).json(books))
-      .catch(error => res.status(400).json({ error }));
+      .catch(error => res.status(500).json({ error }));
   };
 
 exports.getOneBook = (req, res, next) => {
