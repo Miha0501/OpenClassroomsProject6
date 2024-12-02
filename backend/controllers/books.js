@@ -29,7 +29,7 @@ exports.createBook = (req, res, next) => { // création des nouvelles livres sel
     .webp({ quality: 80 })
     .toFile(`images/${req.file.filename.split('.')[0]}.webp`, (error, info) => {
       if (error) {
-        return res.status(500).json({ error: 'Erreur lors de la conversion de l'image })
+        return res.status(500).json({ error: 'Erreur lors de la conversion de l\'image' });
       };
 
       book.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}.webp`;
