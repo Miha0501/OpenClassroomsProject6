@@ -8,6 +8,16 @@ exports.getAllBooks = (req, res, next) => { // récupération des livres pour ê
     .catch(error => res.status(500).json({ error }));
 };
 
+exports.getBestRatingBooks = async (req, res, next) => {
+  try {
+    const books = await Book.find().sort({ averageRating: - 1 }).limit(3);
+    res.status(200).json(books);
+
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 exports.getOneBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then(book => res.status(200).json(book))
