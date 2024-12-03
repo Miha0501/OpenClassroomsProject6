@@ -8,6 +8,12 @@ exports.getAllBooks = (req, res, next) => { // récupération des livres pour ê
     .catch(error => res.status(500).json({ error }));
 };
 
+exports.getOneBook = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then(book => res.status(200).json(book))
+    .catch(error => res.status(404).json({ error }));
+};
+
 exports.getBestRatingBooks = async (req, res, next) => {
   try {
     const books = await Book.find().sort({ averageRating: - 1 }).limit(3);
@@ -16,12 +22,6 @@ exports.getBestRatingBooks = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({ error });
   }
-};
-
-exports.getOneBook = (req, res, next) => {
-  Book.findOne({ _id: req.params.id })
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(404).json({ error }));
 };
 
 exports.createBook = (req, res, next) => {
@@ -77,6 +77,40 @@ exports.modifyBook = (req, res, next) => {
     .catch((error) => {
       res.status(400).json({ error });
     });
+};
+
+exports.PostRating = async (req, res, next) => {
+  try {
+    const book = await Book.findOne({ _id: req.params.id });
+    const rating = req.body.rating;
+
+    if (!book) {
+      return res.status(404).json({ message: 'Livre non trouvé' });
+    }
+
+    // Vérifier si l'utilisateur a déjà donné une note à ce livre et l'empêcher de la noter à nouveau
+    alreadyRated = book.ratings.find(rating => rating.userId === req.auth.userId);
+    if (alreadyRated) {
+      return res.status(404).json({ message: 'Vous avez déjà noté ce livre' });
+    }
+
+    // Ajout de la note par l'utilisateur
+    const newRating = { userId: req.auth.userId, grade: req.body.grade }
+    book.ratings.push(newRating);
+    console.log("Note reçue :", newRating);
+
+    // Calculer la nouvelle moyenne des notes
+    const average = book.ratings.reduce((sum, rating) => sum + rating.grade, 0) / book.ratings.length;
+    book.averageRating = average;
+
+    // Sauvegarder les modifications
+    await book.save();
+
+    res.status(200).json({ message: 'Note ajoutée avec succès', book });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de l\'ajout de la note' });
+  }
 };
 
 exports.deleteBook = (req, res, next) => {
