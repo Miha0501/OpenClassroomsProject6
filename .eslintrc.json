@@ -18,7 +18,9 @@
     ],
     "rules": {
         "linebreak-style": ["error", "windows"],
-        "endOfLine": "lf",
-        "prefer-template": "off"
+        "endOfLine": 0,
+        "prefer-template": "off",
+        "indent": ["error", 4],
+        "arrow-parens": ["error", "as-needed"]
     }
 }
