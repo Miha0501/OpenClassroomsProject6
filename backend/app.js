@@ -1,10 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
 const app = express();
+const path = require('path');
 const booksRoutes = require('./routes/books');
 const userRoutes = require('./routes/user');
-const path = require('path');
 
 app.use(express.json()); // lire le body des rêquetes en json
 app.use(cors());

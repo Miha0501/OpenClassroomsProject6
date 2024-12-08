@@ -1,7 +1,8 @@
-// créer le router
-const express = require ('express');
-const auth = require ('../middleware/auth');
-const multer = require ('../middleware/multer-config');
+// création du router
+const express = require('express');
+const auth = require('../middleware/auth');
+const multer = require('../middleware/multer-config');
+
 const router = express.Router();
 const booksCtrl = require('../controllers/books');
 

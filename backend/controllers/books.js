@@ -1,24 +1,24 @@
-const User = require('../models/User');
-const Book = require('../models/Book');
 const fs = require('fs');
 const sharp = require('sharp');
+const User = require('../models/User');
+const Book = require('../models/Book');
 
 // Récupération des tous les livres depuis la base de données
-exports.getAllBooks = (req, res, next) => { 
+exports.getAllBooks = (req, res) => {
   Book.find()
     .then(books => res.status(200).json(books))
     .catch(error => res.status(500).json({ error }));
 };
 
 // Récupération d'un livre selon les paramètres id
-exports.getOneBook = (req, res, next) => {
+exports.getOneBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then(book => res.status(200).json(book))
     .catch(error => res.status(404).json({ error }));
 };
 
-// Récupération des trois livres le mieux notés 
-exports.getBestRatingBooks = async (req, res, next) => {
+// Récupération des trois livres le mieux notés
+exports.getBestRatingBooks = async (req, res) => {
   try {
     const books = await Book.find().sort({ averageRating: - 1 }).limit(3);
     res.status(200).json(books);
@@ -28,8 +28,8 @@ exports.getBestRatingBooks = async (req, res, next) => {
   }
 };
 
-// Post d'un nouveau livre
-exports.createBook = (req, res, next) => {
+// Création d'un nouveau livre
+exports.createBook = (req, res) => {
   try {
     const bookObjet = JSON.parse(req.body.book);
     delete bookObjet._id;
@@ -48,7 +48,7 @@ exports.createBook = (req, res, next) => {
 
       sharp(req.file.path)
         .webp({ quality: 80 })
-        .toFile(`images/${req.file.filename.split('.')[0]}.webp`, (error, info) => {
+        .toFile(`images/${req.file.filename.split('.')[0]}.webp`, (error) => {
           if (error) {
             return res.status(500).json({ error: 'Erreur lors de la conversion de l\'image' });
           };
@@ -68,8 +68,8 @@ exports.createBook = (req, res, next) => {
   }
 };
 
-// Modification des informations/image d'un livre
-exports.modifyBook = (req, res, next) => {
+// Modification des champs/image d'un livre
+exports.modifyBook = (req, res) => {
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
@@ -78,7 +78,7 @@ exports.modifyBook = (req, res, next) => {
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-      if (book.userId != req.auth.userId) {
+      if (book.userId !== req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else {
         Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
@@ -92,7 +92,7 @@ exports.modifyBook = (req, res, next) => {
 };
 
 // L'ajout d'une notation et mise à jour de la note moyenne d'un livre
-exports.PostRating = async (req, res, next) => {
+exports.PostRating = async (req, res) => {
   try {
     const book = await Book.findOne({ _id: req.params.id });
     const rating = req.body.rating;
@@ -117,10 +117,10 @@ exports.PostRating = async (req, res, next) => {
 };
 
 // Supréssion d'un livre de la base de données
-exports.deleteBook = (req, res, next) => {
+exports.deleteBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then(book => {
-      if (book.userId != req.auth.userId) {
+      if (book.userId !== req.auth.userId) {
         res.status(401).json({ message: 'Not authorized' });
       } else {
         const filename = book.imageUrl.split('/images/')[1];
