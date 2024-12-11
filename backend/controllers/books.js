@@ -29,7 +29,7 @@ exports.getBestRatingBooks = async (req, res) => {
 };
 
 // Création d'un nouveau livre
-exports.createBook = (req, res) => {
+exports.createBook = async (req, res) => {
   try {
     const bookObjet = JSON.parse(req.body.book);
     delete bookObjet._id;
@@ -40,12 +40,6 @@ exports.createBook = (req, res) => {
     const user = User.findById(userId);
 
     if (user && user.email === email) {
-      const book = new Book({
-        ...bookObjet,
-        userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-      });
-
       sharp(req.file.path)
         .webp({ quality: 80 })
         .toFile(`images/${req.file.filename.split('.')[0]}.webp`, (error) => {
@@ -53,8 +47,13 @@ exports.createBook = (req, res) => {
             return res.status(500).json({ error: 'Erreur lors de la conversion de l\'image' });
           };
 
-          book.imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}.webp`;
         });
+
+      const book = new Book({
+        ...bookObjet,
+        userId: req.auth.userId,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename.split('.')[0]}.webp`
+      });
 
       book.save()
         .then(() => res.status(201).json({ message: 'Livre crée avec succès !' }))
@@ -95,8 +94,6 @@ exports.modifyBook = (req, res) => {
 exports.PostRating = async (req, res) => {
   try {
     const book = await Book.findOne({ _id: req.params.id });
-    const rating = req.body.rating;
-    id = req.params.id;
 
     if (!book) {
       return res.status(404).json({ message: 'Livre non trouvé' });
